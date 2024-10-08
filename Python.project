@@ -1,0 +1,118 @@
+import os
+
+acc_num = ""               # account number
+acc_holder_name = ""       # account holder's name
+net_blnc = 0.0             # net balance
+acc_no = ""                # account number input
+choice = ""                # user's choice
+amt = 0.0                  # amount to be deposited or withdrawn
+cred = 0.0                 # credit amount
+deb = 0.0                  # debit amount
+trans_bal = 0.0            # transaction balance
+accnt_exists = 0           # flag to check if account exists
+proceed = 0                # flag to continue
+
+def create_account():
+    global acc_num, acc_holder_name, net_blnc
+    print("Please enter the following details:")
+    print("Account number:")
+    acc_num = input()
+    acc_num += ".dat"
+    print("Account holder's name:")
+    acc_holder_name = input()
+    with open(acc_num, "w") as file:
+        file.write(acc_holder_name + "\n")
+        file.write("0.0 \t 0.0 \t 0.0\n")
+        print("Account created successfully!")
+    print("Enter any number to continue")
+    input()
+
+def get_accnt_indx():
+    global acc_num, accnt_exists
+    print("Enter your account number.")
+    acc_no = input()
+    acc_num = acc_no + ".dat"
+    if os.path.exists(acc_num):
+        accnt_exists = 1
+        return 1
+    else:
+        print("Sorry, this account doesn't exist.")
+        print("Enter any number to continue")
+        input()
+        return 0
+
+def account_info():
+    global acc_num, acc_holder_name, net_blnc
+    with open(acc_num, "r") as file:
+        file.readline()  # skip account holder's name
+        line = file.readline()
+        _, net_blnc, _ = line.split()
+        net_blnc = float(net_blnc)
+        print("Account number:", acc_no)
+        print("Account holder's name:", acc_holder_name)
+        print("Account balance:", net_blnc)
+    print("Enter any number to continue")
+    input()
+
+def deposit():
+    global acc_num, net_blnc
+    print("Enter the amount to be deposited")
+    amt = float(input())
+    if amt < 0:
+        print("INCORRECT ENTRY: Entered deposit amount is negative")
+        print("Balance not updated")
+    else:
+        with open(acc_num, "r+") as file:
+            file.readline()  # skip account holder's name
+            line = file.readline()
+            _, _, net_blnc_str = line.split()
+            net_blnc = float(net_blnc_str)
+            net_blnc += amt
+            file.write("0.0 \t " + str(amt) + " \t " + str(net_blnc) + "\n")
+            print("Amount deposited:", amt)
+            print("Updated balance:", net_blnc)
+    print("Enter any number to continue")
+    input()
+
+def withdraw():
+    global acc_num, net_blnc
+    with open(acc_num, "r") as file:
+        file.readline()  # skip account holder's name
+        line = file.readline()
+        _, _, net_blnc_str = line.split()
+        net_blnc = float(net_blnc_str)
+        if net_blnc <= 0:
+            print("Low balance. Cannot withdraw")
+        else:
+            print("Enter the amount to be withdrawn")
+            amt = float(input())
+            if amt < 0:
+                print("The amount can't be withdrawn in negative")
+            elif amt > net_blnc:
+                print("Insufficient balance")
+            else:
+                net_blnc -= amt
+                with open(acc_num, "a") as file:
+                    file.write(str(amt) + " \t 0.0 \t " + str(net_blnc) + "\n")
+                    print("Amount withdrawn:", amt)
+                    print("Updated balance:", net_blnc)
+    print("Enter any number to continue")
+    input()
+
+def passbook():
+    global acc_num, acc_holder_name
+    with open(acc_num, "r") as file:
+        file.readline()  # skip account holder's name
+        print("================================================")
+        print("\n\n \t\t||Bank of Cs||	")
+        print("A/c:", acc_no, "\t\t\t Name:", acc_holder_name)
+        print("________________________________________________")
+        print("DEBIT \t\t CREDIT \t BALANCE	")
+        print("________________________________________________")
+        for line in file:
+            deb, cred, trans_bal = line.split()
+            print(deb, " \t\t ", cred, " \t ", trans_bal)
+            print("------------------------------------------------")
+        print("\n\n")
+        print("Enter any number to continue")
+       
